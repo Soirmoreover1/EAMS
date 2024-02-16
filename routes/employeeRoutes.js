@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Employee = require('../models/Employee_personal_info');
+const employeeController = require('../controllers/employeeController');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const utli = require('util')
@@ -29,66 +30,35 @@ filename:function(req,file,cb){
 
 const upload =multer({storage:storage});
 
+const { passport, isAuthenticated } = require('../middlewares/auth'); // Import Passport and isAuthenticated
 
+// Use Passport for Google authentication routes
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/' }),
+  (req, res) => {
+    // Successful authentication, redirect to the home page or a designated route
+    res.redirect('/');
+  }
+);
+router.get('/googlelogout', isAuthenticated,(req, res) => {
+  req.logout();
+  res.redirect('/');
+});
+// Middleware to check if the user is authenticated
+router.use(isAuthenticated);
 
 // Get all Employee
-router.get('/showemployees',adminauthorized ,async (req, res) => {
-  try {
-    const employees = await Employee.find();
-    res.json(employees);
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
+router.get('/showemployees', adminauthorized ,employeeController.showEmployees);
+//get one employee
+router.get('/showemployee/:employeeId', adminauthorized,employeeController.showEmployee);
+//  - Create a Employee
+router.post('/create', upload.single('image'), authorized, isAuthenticated,employeeController.createEmployee);
 
-// Admin - Create a Employee
-router.post('/create',adminauthorized,upload.single('image') ,async (req, res) => {
-  try {
-    const employee = new Employee({
-      emp_id: req.body.emp_id,
-      employeeType: req.body.employeeType,
-      shift: req.body.shift,
-      name:req.body.name,
-      hiringDate:req.body.hiringDate,
-      department: req.body.department,
-      role: req.body.role,
-      image: req.file.filename,
-      mobileNumber:req.body.mobileNumber,
-      salary: req.body.salary,
-      salaryType: req.body.salaryType,
-      address: req.body.address,
-      otherDetails: req.body.otherDetails,
-      workingDays: req.body.workingDays,
-      isActive:req.body.isActive
+// - Update a Employee
+router.patch('/edit/:employeeId', authorized ,isAuthenticated,employeeController.updateEmployee);
 
-    });
-
-    await employee.save();
-    res.status(201).json({ message: 'Employee created.' });
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
-
-// Admin - Update a Employee
-router.patch('/edit/:employeeId',adminauthorized, async (req, res) => {
-  try {
-    await Employee.findByIdAndUpdate(req.params.employeeId, req.body);
-  
-    res.json({ message: 'Employee updated.' });
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
-
-// Admin - Delete a Employee
-router.delete('/delete/:employeeId', adminauthorized, async (req, res) => {
-  try {
-    await Employee.findByIdAndDelete(req.params.employeeId);
-    res.json({ message: 'Employee deleted.' });
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
+//  - Delete a Employee
+router.delete('/delete/:employeeId', authorized,isAuthenticated, employeeController.deleteEmployee);
 
 module.exports = router;

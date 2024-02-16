@@ -7,56 +7,38 @@ const utli = require('util')
 const asyncsign = utli.promisify(jwt.sign)
 require('dotenv').config();
 const {authorized , adminauthorized} = require('../middlewares/authenticate');
+const promotionController = require('../controllers/promotionController');
+const { passport, isAuthenticated } = require('../middlewares/auth'); // Import Passport and isAuthenticated
 
-// Get all Promotion
-router.get('/showpromotions',adminauthorized ,async (req, res) => {
-  try {
-    const promotions = await Promotion.find();
-    res.json(promotions);
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
+// Use Passport for Google authentication routes
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/' }),
+  (req, res) => {
+    // Successful authentication, redirect to the home page or a designated route
+    res.redirect('/');
   }
-});
+);
+router.get('/googlelogout', isAuthenticated,(req, res) => {
+    req.logout();
+    res.redirect('/');
+  });
+// Middleware to check if the user is authenticated
+router.use(isAuthenticated);
+// Get all Promotion
+router.get('/showpromotions', adminauthorized, promotionController.showPromotions);
+
+// Get one Promotion
+router.get('/showpromotion', adminauthorized, promotionController.showPromotion);
+
 
 // Admin - Create a Promotion
-router.post('/create',adminauthorized, async (req, res) => {
-  try {
-    const promotion = new Promotion({
-    
-    emp_id: req.body.emp_id,
-    promotionDate:  req.body.promotionDate,
-    newDepartment: req.body.newDepartment,
-    newPosition:  req.body.newPosition,
-    newSalary:  req.body.newSalary
-
-    });
-
-    await promotion.save();
-    res.status(201).send(promotion).json({ message: 'Promotion created.' });
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
+router.post('/create', adminauthorized, promotionController.createPromotion);
 
 // Admin - Update a Promotion
-router.patch('/edit/:promotionId',adminauthorized, async (req, res) => {
-  try {
-    await Promotion.findByIdAndUpdate(req.params.promotionId, req.body);
-  
-    res.json({ message: 'Promotion updated.' });
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
+router.patch('/edit/:promotionId', adminauthorized,promotionController.updatePromotion);
 
 // Admin - Delete a Promotion
-router.delete('/delete/:promotionId', adminauthorized, async (req, res) => {
-  try {
-    await Promotion.findByIdAndDelete(req.params.promotionId);
-    res.json({ message: 'Promotion deleted.' });
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
+router.delete('/delete/:promotionId', adminauthorized,promotionController.deletePromotion);
 
 module.exports = router;

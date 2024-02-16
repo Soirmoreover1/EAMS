@@ -7,52 +7,35 @@ const utli = require('util')
 const asyncsign = utli.promisify(jwt.sign)
 require('dotenv').config();
 const {authorized , adminauthorized} = require('../middlewares/authenticate');
+const shiftController = require('../controllers/shiftController');
+const { passport, isAuthenticated } = require('../middlewares/auth'); // Import Passport and isAuthenticated
 
-// Get all Shift
-router.get('/showshifts',adminauthorized ,async (req, res) => {
-  try {
-    const shifts = await Shift.find();
-    res.json(shifts);
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
+// Use Passport for Google authentication routes
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/' }),
+  (req, res) => {
+    // Successful authentication, redirect to the home page or a designated route
+    res.redirect('/');
   }
-});
+);
+router.get('/googlelogout', isAuthenticated,(req, res) => {
+    req.logout();
+    res.redirect('/');
+  });
+// Middleware to check if the user is authenticated
+router.use(isAuthenticated);
+// Get all Shifts
+router.get('/showshifts', adminauthorized ,shiftController.getAllShifts);
+//get one Shift
+router.get('/showshift/:shiftId', adminauthorized ,shiftController.getoneShift);
 
 // Admin - Create a Shift
-router.post('/create',adminauthorized, async (req, res) => {
-  try {
-    const shift = new Shift({
-        shiftName: req.body.shiftName,
-      startTime:  req.body.startTime,
-      endTime: req.body.endTime
-    });
-
-    await shift.save();
-    res.status(201).send(shift).json({ message: 'Shift created.' });
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
+router.post('/shifts', adminauthorized, shiftController.createShift);
 
 // Admin - Update a Shift
-router.patch('/edit/:shiftId',adminauthorized, async (req, res) => {
-  try {
-    await Shift.findByIdAndUpdate(req.params.shiftId, req.body);
-  
-    res.json({ message: 'Shift updated.' });
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
+router.patch('/shifts/:shiftId', adminauthorized, shiftController.updateShift);
 
 // Admin - Delete a Shift
-router.delete('/delete/:shiftId', adminauthorized, async (req, res) => {
-  try {
-    await Shift.findByIdAndDelete(req.params.shiftId);
-    res.json({ message: 'Shift deleted.' });
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
-
+router.delete('/shifts/:shiftId', adminauthorized, shiftController.deleteShift);
 module.exports = router;

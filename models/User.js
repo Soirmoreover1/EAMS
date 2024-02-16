@@ -44,20 +44,37 @@ const userSchema = new mongoose.Schema({
     match: [/^\d{10}$/, 'Please enter a valid 10-digit phone number.']
   },
   address: String,
-  isAdmin: {
-    type: Boolean,
-    default: false
+  tokens: [
+    {
+      token: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
+  createdcompanys:[
+{
+  type:mongoose.Types.ObjectId,
+  ref:"Company"
+}
+  ],
+  role: {
+    type: String,
+    enum:["admin","user"],
+    default: "admin"
   }} , {
     toJSON:{
-      transform : (doc , retuDoc)=> _.omit(retuDoc , ['__v' , 'password' , 'isAdmin'])
+      transform : (doc , retuDoc)=> _.omit(retuDoc , ['__v' , 'password' , 'role'])
     }
-  })
+  },
+  { timestamps: true }
+  )
   
   userSchema.methods.generateAuthToken = async function () {
     const token = asyncsign({
       id: this.id,
       email: this.email,
-      isAdmin: this.isAdmin,
+      role: this.role,
   }, process.env.JWT_SECRET);
   return token;
  }

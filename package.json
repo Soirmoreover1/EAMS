@@ -7,6 +7,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-session": "^1.18.0",
     "expressjs": "^1.0.1",
     "js": "^0.1.0",
     "jsonwebtoken": "^9.0.2",
@@ -17,6 +18,8 @@
     "node": "^21.1.0",
     "nodejs": "^0.0.0",
     "nodemon": "^3.0.1",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
     "path": "^0.12.7",
     "url-encode-decode": "^1.0.0",
     "util": "^0.12.5"
@@ -32,7 +35,6 @@
   "author": "mohamed atef",
   "license": "ISC",
   "description": "EAMS by using node js and express and mongo\r you have access as user or admin .one of them do some operation such \r as admin :: create ,delete,update ",
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Soirmoreover1/EAMS.git"

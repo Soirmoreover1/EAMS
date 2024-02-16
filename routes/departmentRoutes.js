@@ -1,77 +1,53 @@
 const express = require('express');
 const router = express.Router();
-const Department = require('../models/Department');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const utli = require('util')
 const asyncsign = utli.promisify(jwt.sign)
 require('dotenv').config();
 const {authorized , adminauthorized} = require('../middlewares/authenticate');
-// get all users
-router.get('/showusers', async (req, res) => {
-  try {
-    const users = await User.find();
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
+const departmentController = require('../controllers/departmentController');
+const Department = require('../models/Department');
+const { passport, isAuthenticated } = require('../middlewares/auth'); // Import Passport and isAuthenticated
 
-//delete users by id
-router.delete('/users/:userId', async (req, res) => {
-  try {
-    await User.findByIdAndDelete(req.params.userId);
-    res.json({ message: 'User deleted.' });
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
+// Use Passport for Google authentication routes
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/' }),
+  (req, res) => {
+    // Successful authentication, redirect to the home page or a designated route
+    res.redirect('/');
   }
-});
+);
+router.get('/googlelogout',isAuthenticated, (req, res) => {
+    req.logout();
+    res.redirect('/');
+  });
+// Middleware to check if the user is authenticated
+router.use(isAuthenticated);
 
-// Get all department
-router.get('/showdepartments',async (req, res) => {
-  try {
-    const departments = await Department.find();
-    res.json(departments);
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
+// Get all users
+router.get('/showusers', adminauthorized, departmentController.showUsers);
+//get one user
+
+router.get('/showuser/:userId', adminauthorized, departmentController.showUser);
+
+// Delete users by id
+router.delete('/deleteuser/:userId', adminauthorized , departmentController.deleteUser);
+
+// Get all departments
+router.get('/showdepartments', adminauthorized, departmentController.showDepartments);
+//get one 
+
+router.get('/showdepartment/:departmentId', adminauthorized, departmentController.showDepartment);
 
 // Admin - Create a department
-router.post('/create', async (req, res) => {
-  try {
-    const department = new Department({
-      name: req.body.name,
-      manager: req.body.manager
-      
-    });
-
-    await department.save();
-    res.status(201).send(department).json({ message: 'department created.' });
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
+router.post('/create', adminauthorized, departmentController.createDepartment);
 
 // Admin - Update a department
-router.patch('/edit/:departmentId', async (req, res) => {
-  try {
-    await Department.findByIdAndUpdate(req.params.departmentId, req.body);
-  
-    res.json({ message: 'department updated.' });
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
+router.patch('/edit/:departmentId', adminauthorized, departmentController.updateDepartment);
 
 // Admin - Delete a department
-router.delete('/delete/:departmentId', async (req, res) => {
-  try {
-    await Department.findByIdAndDelete(req.params.departmentId);
-    res.json({ message: 'department deleted.' });
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
+router.delete('/delete/:departmentId', adminauthorized, departmentController.deleteDepartment);
 
 module.exports = router;

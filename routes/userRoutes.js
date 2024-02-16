@@ -8,6 +8,7 @@ const customerError = require("../CustomerError");
 const utli = require('util')
 const asyncsign = utli.promisify(jwt.sign)
 const {authorized , adminauthorized} = require('../middlewares/authenticate');
+const userController = require('../controllers/userController');
 
 const bodyparser = require("body-parser");
 router.use(bodyparser.json());
@@ -30,64 +31,30 @@ filename:function(req,file,cb){
 });
 
 const upload =multer({storage:storage});
+const { passport, isAuthenticated } = require('../middlewares/auth'); // Import Passport and isAuthenticated
+
+// Use Passport for Google authentication routes
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/' }),
+  (req, res) => {
+    // Successful authentication, redirect to the home page or a designated route
+    res.redirect('/');
+  }
+);
+router.get('/googlelogout', isAuthenticated,(req, res) => {
+  req.logout();
+  res.redirect('/');
+});
+// Middleware to check if the user is authenticated
+router.use(isAuthenticated);
 
 
 // User registration
-router.post('/register',upload.single('image') , async (req, res) => {
-    try {
-    
-    const existingUser = await User.findOne({ email: req.body.email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'Email already exists.' });
-    }
-    const user=new User(req.body)
-    const token = await user.generateAuthToken()
+router.post('/register', upload.single('image'), userController.register);
 
-    await user.save();
-    res.status(201).send({user,token}).json({user,token});
-  } catch (error) {
-    res.status(500).json({ message:error.message });
-  }
-});
+router.post("/login", userController.login);
 
-
-
-
-router.post("/login", async (req, res, next) => {
-  const { email, password } = req.body;
-  const finduser = await User.findOne({ email });
-
-  if (!finduser) {
-    next(
-      customerError({
-        statusCode: 401,
-        message: "password or email is not correct",
-      })
-    );
-  }
-  const copmarpass = await bcrypt.compare(password, finduser.password);
-  if (copmarpass) {
-    const token = await finduser.generateAuthToken();
-    res.status(200).send(token).json(token); 
-}
-next(
-  customerError({
-    statusCode: 401,
-    message: "password or email is not correct",
-  })
-);
-});
-
-router.post('/logout', async (req, res) => {
-  try {
-    const user = req.user;
-    user.tokens = user.tokens.filter((token) => token.token !== req.token);
-    await user.save();
-    res.status(200).json({ message: 'Logged out successfully.' });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
+router.post('/logout', userController.logout);
 
 module.exports = router;

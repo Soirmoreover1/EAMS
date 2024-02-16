@@ -7,57 +7,37 @@ const utli = require('util')
 const asyncsign = utli.promisify(jwt.sign)
 require('dotenv').config();
 const {authorized , adminauthorized} = require('../middlewares/authenticate');
+const { passport, isAuthenticated } = require('../middlewares/auth'); // Import Passport and isAuthenticated
+const attendanceController = require('../controllers/attendanceController');
 
-
-// Get all Attendance
-router.get('/showattendances',adminauthorized ,async (req, res) => {
-  try {
-    const attendances = await Attendance.find();
-    res.json(attendances);
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
+// Use Passport for Google authentication routes
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/' }),
+  (req, res) => {
+    // Successful authentication, redirect to the home page or a designated route
+    res.redirect('/');
   }
-});
+);
+router.get('/googlelogout', isAuthenticated,(req, res) => {
+    req.logout();
+    res.redirect('/');
+  });
+// Middleware to check if the user is authenticated
+router.use(isAuthenticated);
 
-// Admin - Create a attendances
-router.post('/create',adminauthorized, async (req, res) => {
-  try {
-    const attendance = new Attendance({
-      
-    attendanceDate:req.body.attendanceDate ,
-    type: req.body.type,
-    loans: req.body.loans,
-    Deduction:req.body.Deduction,
-    bonusAmount:req.body.bonusAmount 
-      
-    });
+// Get all attendances
+router.get('/showattendances', authorized,isAuthenticated, attendanceController.showAttendances);
+//get one
+router.get('/showattendance/:attendanceId', authorized,isAuthenticated, attendanceController.showAttendance);
 
-    await attendance.save();
-    res.status(201).send(attendance).json({ message: 'Attendance created.' });
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
+// Admin - Create an attendance
+router.post('/create', authorized ,isAuthenticated,attendanceController.createAttendance);
 
-// Admin - Update a Attendance
-router.patch('/edit/:attendanceId',adminauthorized, async (req, res) => {
-  try {
-    await Attendance.findByIdAndUpdate(req.params.attendanceId, req.body);
-  
-    res.json({ message: 'Attendance updated.' });
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
+// Admin - Update an attendance
+router.patch('/edit/:attendanceId', authorized, isAuthenticated, attendanceController.updateAttendance);
 
-// Admin - Delete a Attendance
-router.delete('/delete/:attendanceId', adminauthorized, async (req, res) => {
-  try {
-    await Attendance.findByIdAndDelete(req.params.attendanceId);
-    res.json({ message: 'Attendance deleted.' });
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
+// Admin - Delete an attendance
+router.delete('/delete/:attendanceId', authorized,isAuthenticated, attendanceController.deleteAttendance);
 
 module.exports = router;

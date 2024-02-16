@@ -7,58 +7,37 @@ const utli = require('util')
 const asyncsign = utli.promisify(jwt.sign)
 require('dotenv').config();
 const {authorized , adminauthorized} = require('../middlewares/authenticate');
+const companyController = require('../controllers/companyController');
+const { passport, isAuthenticated } = require('../middlewares/auth'); // Import Passport and isAuthenticated
 
-// Get all Company
-router.get('/showcompanys',adminauthorized ,async (req, res) => {
-  try {
-    const companys = await Company.find();
-    res.json(companys);
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
+// Use Passport for Google authentication routes
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/' }),
+  (req, res) => {
+    // Successful authentication, redirect to the home page or a designated route
+    res.redirect('/');
   }
-});
+);
+router.get('/googlelogout', isAuthenticated,(req, res) => {
+    req.logout();
+    res.redirect('/');
+  });
+// Middleware to check if the user is authenticated
+router.use(isAuthenticated);
+
+// Get all companies
+router.get('/showcompanies',adminauthorized,companyController.showCompanies);
+//get one company
+router.get('/showcompany/:companyId',adminauthorized,companyController.showCompany);
 
 // Admin - Create a Company
-router.post('/create' ,async (req, res) => {
-  try {
-    const company = new Company({
-    name: req.body.name,
-    manager: req.body.manager,
-    taxId: req.body.taxId,
-    website: req.body.website,
-    location:{
-      type:"Point",
-      coordinates:[parseFloat(req.body.longitude),parseFloat(req.body.latitude)]
-    },
-    industry: req.body.industry 
-    });
-
-    await company.save();
-    res.status(201).json({ message: 'Company created.' });
-  } catch (error) {
-    res.status(500).send(error.message).json({ message: 'An error occurred.' });
-  }
-});
+router.post('/create',adminauthorized ,companyController.createCompany);
 
 // Admin - Update a Company
-router.patch('/edit/:companyId',adminauthorized, async (req, res) => {
-  try {
-    await Company.findByIdAndUpdate(req.params.companyId, req.body);
-  
-    res.json({ message: 'Company updated.' });
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
+router.patch('/edit/:companyId',adminauthorized ,companyController.updateCompany);
 
 // Admin - Delete a Company
-router.delete('/delete/:companyId', adminauthorized, async (req, res) => {
-  try {
-    await Company.findByIdAndDelete(req.params.companyId);
-    res.json({ message: 'Company deleted.' });
-  } catch (error) {
-    res.status(500).json({ message: 'An error occurred.' });
-  }
-});
+router.delete('/delete/:companyId', adminauthorized,companyController.deleteCompany);
 
 module.exports = router;
