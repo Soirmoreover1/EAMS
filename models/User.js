@@ -67,6 +67,8 @@ const userSchema = new mongoose.Schema({
       transform : (doc , retuDoc)=> _.omit(retuDoc , ['__v' , 'password' , 'role'])
     }
   },
+  {resetToken : String},
+  {resetTokenExpiration : Date},
   { timestamps: true }
   )
   

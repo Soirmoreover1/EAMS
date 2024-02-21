@@ -2,6 +2,7 @@ require('./db')
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
+const bodyParser = require('body-parser');
 const cors =require('cors');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
@@ -11,6 +12,7 @@ app.use(session({ secret: process.env.JWT_SECRET, resave: true, saveUninitialize
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json());
+app.use(bodyParser.json());
 app.disable("x-powered-by");
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));

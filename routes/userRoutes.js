@@ -56,5 +56,7 @@ router.post('/register', upload.single('image'), userController.register);
 router.post("/login", userController.login);
 
 router.post('/logout', userController.logout);
+router.post('/forgotpassword', userController.forgotPassword);
+router.post('/resetpassword', userController.resetPassword);
 
 module.exports = router;
