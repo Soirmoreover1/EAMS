@@ -9,6 +9,7 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer') ;
 const {authorized , adminauthorized} = require('../middlewares/authenticate');
 const userController = require('../controllers/userController');
+require('dotenv').config();
 
 const utli = require('util');
 const asyncsign = utli.promisify(jwt.sign);

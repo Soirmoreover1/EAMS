@@ -2,6 +2,7 @@ require('./db')
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
+require('dotenv').config();
 const bodyParser = require('body-parser');
 const cors =require('cors');
 const cookieParser = require('cookie-parser');
