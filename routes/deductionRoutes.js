@@ -8,8 +8,9 @@ const asyncsign = utli.promisify(jwt.sign)
 require('dotenv').config();
 const {authorized , adminauthorized} = require('../middlewares/authenticate');
 const deductionController = require('../controllers/deductionController');
-const { passport, isAuthenticated } = require('../middlewares/auth'); // Import Passport and isAuthenticated
 
+const { passport, isAuthenticated } = require('../middlewares/auth'); // Import Passport and isAuthenticated
+/*
 // Use Passport for Google authentication routes
 router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 router.get('/auth/google/callback',
@@ -25,7 +26,7 @@ router.get('/googlelogout',isAuthenticated, (req, res) => {
   });
 // Middleware to check if the user is authenticated
 router.use(isAuthenticated);
-
+*/
 // Get all deductions
 router.get('/showdeductions', adminauthorized,deductionController.showDeductions);
 //get one 

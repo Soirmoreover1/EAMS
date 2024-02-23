@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 
 const employee_personal_infoSchema = new mongoose.Schema({
     emp_id: { type: mongoose.Schema.Types.ObjectId ,required: false},
+    company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
     employeeType: { type: String, enum: ['manager', 'regular'], required: true },
     shift: { type: mongoose.Schema.Types.ObjectId, required: false },
     name: { type: String, required: true },

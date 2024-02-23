@@ -52,7 +52,7 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
-  createdcompanys:[
+  company:[
 {
   type:mongoose.Types.ObjectId,
   ref:"Company"

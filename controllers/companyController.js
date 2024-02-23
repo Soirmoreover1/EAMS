@@ -18,10 +18,23 @@ const showCompanies = async (req, res) => {
     .populate('employee_personal_infos')
     .populate('attendances')
     .populate('promotions')
-    .populate('salary')
+    .populate('salaries')
     .populate('leaves')
-    .populate('creator');
+    .populate('creator')
+  
+
+
+    console.log(companies.departments);
+    console.log(companies.deductions);
+    console.log(companies.shifts);
+    console.log(companies.bonuses);
+    console.log(companies.employee_personal_infos);
+    console.log(companies.salaries);    
+    console.log(companies.attendances);    
+    console.log(companies.promotions);    
+    console.log(companies.leaves);
     res.json(companies);
+
   } catch (error) {
     res.status(500).json({ message: 'An error occurred.' });
   }
@@ -37,7 +50,7 @@ const showCompany = async (req, res) => {
     .populate('employee_personal_infos')
     .populate('attendances')
     .populate('promotions')
-    .populate('salary')
+    .populate('salaries')
     .populate('leaves')
     .populate('creator');
 
@@ -45,7 +58,17 @@ const showCompany = async (req, res) => {
       return res.status(404).json({ message: 'company not found.' });
     }
 
+    console.log(company.departments);
+    console.log(company.deductions);
+    console.log(company.shifts);
+    console.log(company.bonuses);
+    console.log(company.employee_personal_infos);
+    console.log(company.salaries);    
+    console.log(company.attendances);    
+    console.log(company.promotions);    
+    console.log(company.leaves);
     res.json(company);
+
   } catch (error) {
     console.error('Error getting company details:', error);
     res.status(500).json({ message: 'An error occurred.', error: error.message });

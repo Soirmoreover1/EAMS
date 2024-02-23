@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const attendanceSchema = new mongoose.Schema({
     emp_id: { type: mongoose.Schema.Types.ObjectId, ref :"User", required: false },
+    company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
     attendanceDate: { type: Date,default:Date.now ,required: false },
     type: { type: String, enum: ['Present', 'Absent', 'Half-day', 'Holiday'], required: true },
     time_in:{type:String, required:true},
