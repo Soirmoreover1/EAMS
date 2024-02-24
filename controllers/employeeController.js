@@ -81,9 +81,11 @@ const createEmployee = async (req, res) => {
     //if (missingFields.length > 0) {
     //  return res.status(400).json({ message: 'Missing required fields', missingFields });
    // }
+   const emp_id = req.user.id;
 
     const employee = new Employee({
       ...req.body,
+      company :req.user.company,
       image: req.file ? req.file.filename : null
     });
 

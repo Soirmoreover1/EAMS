@@ -69,8 +69,9 @@ const showDepartment = async (req, res) => {
 const createDepartment = async (req, res) => {
   try {
     const { name, manager } = req.body;
-
+    const emp_id = req.user.id;
     const department = new Department({
+      company :req.user.company,
       name,
       manager
     });

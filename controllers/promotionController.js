@@ -34,10 +34,12 @@ const showPromotion = async (req, res) => {
 
 const createPromotion = async (req, res) => {
   try {
-    const { emp_id, promotionDate, newDepartment, newPosition, newSalary } = req.body;
+    const { promotionDate, newDepartment, newPosition, newSalary } = req.body;
+    const emp_id = req.user.id;
 
     const promotion = new Promotion({
       emp_id,
+      company :req.user.company,
       promotionDate,
       newDepartment,
       newPosition,

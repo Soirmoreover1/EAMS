@@ -27,17 +27,17 @@ router.get('/googlelogout', isAuthenticated,(req, res) => {
 router.use(isAuthenticated);
 */
 // Get all attendances
-router.get('/showattendances', authorized,isAuthenticated, attendanceController.showAttendances);
+router.get('/showattendances', adminauthorized,isAuthenticated, attendanceController.showAttendances);
 //get one
-router.get('/showattendance/:attendanceId', authorized,isAuthenticated, attendanceController.showAttendance);
+router.get('/showattendance/:attendanceId', adminauthorized ,isAuthenticated, attendanceController.showAttendance);
 
 // Admin - Create an attendance
-router.post('/create', authorized ,isAuthenticated,attendanceController.createAttendance);
+router.post('/create', adminauthorized ,isAuthenticated,attendanceController.createAttendance);
 
 // Admin - Update an attendance
-router.patch('/edit/:attendanceId', authorized, isAuthenticated, attendanceController.updateAttendance);
+router.patch('/edit/:attendanceId', adminauthorized, isAuthenticated, attendanceController.updateAttendance);
 
 // Admin - Delete an attendance
-router.delete('/delete/:attendanceId', authorized,isAuthenticated, attendanceController.deleteAttendance);
+router.delete('/delete/:attendanceId', adminauthorized,isAuthenticated, attendanceController.deleteAttendance);
 
 module.exports = router;

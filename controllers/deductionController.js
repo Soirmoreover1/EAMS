@@ -36,8 +36,9 @@ const getoneDeduction = async (req, res) => {
 const createDeduction = async (req, res) => {
   try {
     const { type_of_Deduction, deduction_amount, date } = req.body;
-
+    const emp_id = req.user.id;
     const deduction = new Deduction({
+      company :req.user.company,
       type_of_Deduction,
       deduction_amount,
       date

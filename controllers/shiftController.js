@@ -36,7 +36,10 @@ exports.getoneShift= async (req, res) => {
 // Controller method for creating a shift
 exports.createShift = async (req, res) => {
   try {
+    const emp_id = req.user.id;
+
     const shift = new Shift({
+      company :req.user.company,
       shiftName: req.body.shiftName,
       startTime: req.body.startTime,
       endTime: req.body.endTime

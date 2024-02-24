@@ -36,8 +36,10 @@ const showLeave = async (req, res) => {
 const createLeave = async (req, res) => {
   try {
     const { type_of_leave, startTime, endTime, duration } = req.body;
+    const emp_id = req.user.id;
 
     const leave = new Leave({
+      company :req.user.company,
       type_of_leave,
       startTime,
       endTime,

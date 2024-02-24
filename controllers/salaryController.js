@@ -36,7 +36,10 @@ exports.getoneSalary = async (req, res) => {
 // Controller method for creating a salary
 exports.createSalary = async (req, res) => {
   try {
+    const emp_id = req.user.id;
+
     const salary = new Salary({
+      company :req.user.company,
       gross_salary: req.body.gross_salary,
       new_salary: req.body.new_salary,
       date: req.body.date

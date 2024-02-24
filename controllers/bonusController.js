@@ -35,8 +35,9 @@ const getoneBonus = async (req, res) => {
 const createBonus = async (req, res) => {
   try {
     const { type_of_bonus, bonus_amount, date } = req.body;
-
+    const emp_id = req.user.id;
     const bonus = new Bonus({
+      company :req.user.company,
       type_of_bonus,
       bonus_amount,
       date

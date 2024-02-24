@@ -4,7 +4,7 @@ const attendanceSchema = new mongoose.Schema({
     emp_id: { type: mongoose.Schema.Types.ObjectId, ref :"User", required: false },
     company: { type: mongoose.Schema.Types.ObjectId, ref: 'Company' },
     attendanceDate: { type: Date,default:Date.now ,required: false },
-    type: { type: String, enum: ['Present', 'Absent', 'Half-day', 'Holiday'], required: true },
+    type: { type: String, enum: ['Present', 'Absent', 'Half-day', 'Holiday','present', 'absent', 'half-day', 'holiday'], required: true },
     time_in:{type:String, required:true},
     time_out:{type:String, required:true},
     total_hours_worked:{type:String, required:true},
