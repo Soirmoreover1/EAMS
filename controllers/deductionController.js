@@ -35,13 +35,18 @@ const getoneDeduction = async (req, res) => {
 
 const createDeduction = async (req, res) => {
   try {
-    const { type_of_Deduction, deduction_amount, date } = req.body;
-    const emp_id = req.user.id;
+    const requiredFields = [
+       'type_of_Deduction',
+        'deduction_amount',
+         'date'  ];
+
+    const missingFields = requiredFields.filter((field) => !req.body[field]);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({ message: 'Missing required fields', missingFields });
+    }
     const deduction = new Deduction({
-      company :req.user.company,
-      type_of_Deduction,
-      deduction_amount,
-      date
+      ...req.body
     });
 
     await deduction.save();

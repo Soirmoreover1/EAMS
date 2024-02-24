@@ -10,23 +10,7 @@ const departmentController = require('../controllers/departmentController');
 const Department = require('../models/Department');
 
 const { passport, isAuthenticated } = require('../middlewares/auth'); // Import Passport and isAuthenticated
-/*
-// Use Passport for Google authentication routes
-router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-router.get('/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/' }),
-  (req, res) => {
-    // Successful authentication, redirect to the home page or a designated route
-    res.redirect('/');
-  }
-);
-router.get('/googlelogout',isAuthenticated, (req, res) => {
-    req.logout();
-    res.redirect('/');
-  });
-// Middleware to check if the user is authenticated
-router.use(isAuthenticated);
-*/
+
 // Get all users
 router.get('/showusers', adminauthorized, departmentController.showUsers);
 //get one user

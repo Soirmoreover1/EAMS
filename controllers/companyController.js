@@ -22,17 +22,6 @@ const showCompanies = async (req, res) => {
     .populate('leaves')
     .populate('creator')
   
-
-
-    console.log(companies.departments);
-    console.log(companies.deductions);
-    console.log(companies.shifts);
-    console.log(companies.bonuses);
-    console.log(companies.employee_personal_infos);
-    console.log(companies.salaries);    
-    console.log(companies.attendances);    
-    console.log(companies.promotions);    
-    console.log(companies.leaves);
     res.json(companies);
 
   } catch (error) {
@@ -58,15 +47,6 @@ const showCompany = async (req, res) => {
       return res.status(404).json({ message: 'company not found.' });
     }
 
-    console.log(company.departments);
-    console.log(company.deductions);
-    console.log(company.shifts);
-    console.log(company.bonuses);
-    console.log(company.employee_personal_infos);
-    console.log(company.salaries);    
-    console.log(company.attendances);    
-    console.log(company.promotions);    
-    console.log(company.leaves);
     res.json(company);
 
   } catch (error) {
@@ -78,14 +58,21 @@ const showCompany = async (req, res) => {
 
 const createCompany = async (req, res) => {
   try {
-    const { name, manager, taxId, website, industry } = req.body;
+    const requiredFields = [
+       'name',
+        'manager',
+        'taxId',
+        'website',
+        'industry' 
+    ];
 
+    const missingFields = requiredFields.filter((field) => !req.body[field]);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({ message: 'Missing required fields', missingFields });
+    }
     const company = new Company({
-      name,
-      manager,
-      taxId,
-      website,
-      industry
+      ...req.body
     });
 
     await company.save();

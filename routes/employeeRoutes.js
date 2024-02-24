@@ -31,23 +31,7 @@ filename:function(req,file,cb){
 const upload =multer({storage:storage});
 
 const { passport, isAuthenticated } = require('../middlewares/auth'); // Import Passport and isAuthenticated
-/*
-// Use Passport for Google authentication routes
-router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-router.get('/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/' }),
-  (req, res) => {
-    // Successful authentication, redirect to the home page or a designated route
-    res.redirect('/');
-  }
-);
-router.get('/googlelogout', isAuthenticated,(req, res) => {
-  req.logout();
-  res.redirect('/');
-});
-// Middleware to check if the user is authenticated
-router.use(isAuthenticated);
-*/
+
 // Get all Employee
 router.get('/showemployees', adminauthorized ,employeeController.showEmployees);
 //get one employee

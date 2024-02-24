@@ -36,20 +36,23 @@ const showAttendance = async (req, res) => {
 };
 const createAttendance = async (req, res) => {
   try {
-    const { attendanceDate, type, time_in, time_out, total_hours_worked, overtime_hours } = req.body;
+    const requiredFields = [ 
+      'attendanceDate',
+       'type',
+        'time_in',
+        'time_out',
+         'total_hours_worked',
+          'overtime_hours'
+         ];
 
-    // Assuming you have access to the employee's ID
-    const emp_id = req.user.id; // Get the employee's ID from the authenticated user
+    const missingFields = requiredFields.filter((field) => !req.body[field]);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({ message: 'Missing required fields', missingFields });
+    }
 
     const attendance = new Attendance({
-      emp_id,
-      company: req.user.company, // Assuming you store the company ID in the user object
-      attendanceDate,
-      type,
-      time_in,
-      time_out,
-      total_hours_worked,
-      overtime_hours,
+      ...req.body
     });
 
     await attendance.save();

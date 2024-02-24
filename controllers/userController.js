@@ -16,8 +16,7 @@ const asyncsign = utli.promisify(jwt.sign);
 
 const register = async (req, res) => {
   try {
-    const existingUser = await User.findOne({ email: req.body.email }).populate({  path: 'tokens',
-    model: 'User'});
+    const existingUser = await User.findOne({ email: req.body.email });
     if (existingUser) {
       return res.status(400).json({ message: 'Email already exists.' });
     }
@@ -33,8 +32,7 @@ const register = async (req, res) => {
 const login = async (req, res, next) => {
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ email }).populate({  path: 'tokens',
-    model: 'User'})
+    const user = await User.findOne({ email })
 
     if (!user) {
       return next(

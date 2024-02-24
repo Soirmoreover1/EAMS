@@ -10,7 +10,7 @@ const {authorized , adminauthorized} = require('../middlewares/authenticate');
 const Salary = require('../models/Salary');
 
 // Controller method for getting all salaries
-exports.getAllSalaries = async (req, res) => {
+const getAllSalaries = async (req, res) => {
   try {
     const salaries = await Salary.find();
     res.json(salaries);
@@ -19,7 +19,7 @@ exports.getAllSalaries = async (req, res) => {
   }
 };
 
-exports.getoneSalary = async (req, res) => {
+const getoneSalary = async (req, res) => {
   try {
     const salary = await Salary.findById(req.params.salaryId);
 
@@ -34,15 +34,23 @@ exports.getoneSalary = async (req, res) => {
   }
 };
 // Controller method for creating a salary
-exports.createSalary = async (req, res) => {
+const createSalary = async (req, res) => {
   try {
-    const emp_id = req.user.id;
+const requiredFields =[
+  'gross_salary',
+  'new_salary',
+  'date'
+];
+
+    
+    const missingFields = requiredFields.filter((field) => !req.body[field]);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({ message: 'Missing required fields', missingFields });
+    }
 
     const salary = new Salary({
-      company :req.user.company,
-      gross_salary: req.body.gross_salary,
-      new_salary: req.body.new_salary,
-      date: req.body.date
+      ...req.body
     });
 
     await salary.save();
@@ -53,7 +61,7 @@ exports.createSalary = async (req, res) => {
 };
 
 // Controller method for updating a salary
-exports.updateSalary = async (req, res) => {
+const updateSalary = async (req, res) => {
   try {
     await Salary.findByIdAndUpdate(req.params.salaryId, req.body);
   
@@ -64,11 +72,20 @@ exports.updateSalary = async (req, res) => {
 };
 
 // Controller method for deleting a salary
-exports.deleteSalary = async (req, res) => {
+const deleteSalary = async (req, res) => {
   try {
     await Salary.findByIdAndDelete(req.params.salaryId);
     res.json({ message: 'Salary deleted.' });
   } catch (error) {
     res.status(500).json({ message: 'An error occurred.' });
   }
+};
+
+
+module.exports = {
+  getAllSalaries,
+  getoneSalary,
+  createSalary,
+  updateSalary,
+  deleteSalary
 };

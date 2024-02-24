@@ -61,7 +61,6 @@ const createEmployee = async (req, res) => {
   try {
     // Check if the required fields are present in the request body
     const requiredFields = [
-      'emp_id',
       'employeeType',
       'name',
       'role',
@@ -76,16 +75,14 @@ const createEmployee = async (req, res) => {
       'isActive'
     ];
 
-    //const missingFields = requiredFields.filter((field) => !req.body[field]);
+    const missingFields = requiredFields.filter((field) => !req.body[field]);
 
-    //if (missingFields.length > 0) {
-    //  return res.status(400).json({ message: 'Missing required fields', missingFields });
-   // }
-   const emp_id = req.user.id;
+    if (missingFields.length > 0) {
+      return res.status(400).json({ message: 'Missing required fields', missingFields });
+    }
 
     const employee = new Employee({
       ...req.body,
-      company :req.user.company,
       image: req.file ? req.file.filename : null
     });
 

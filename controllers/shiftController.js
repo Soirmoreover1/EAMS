@@ -9,7 +9,7 @@ require('dotenv').config();
 const {authorized , adminauthorized} = require('../middlewares/authenticate');
 
 // Controller method for getting all shifts
-exports.getAllShifts = async (req, res) => {
+const getAllShifts = async (req, res) => {
   try {
     const shifts = await Shift.find();
     res.json(shifts);
@@ -18,7 +18,7 @@ exports.getAllShifts = async (req, res) => {
   }
 };
 
-exports.getoneShift= async (req, res) => {
+const getoneShift= async (req, res) => {
   try {
     const shift = await Shift.findById(req.params.shiftId);
 
@@ -34,15 +34,22 @@ exports.getoneShift= async (req, res) => {
 };
 
 // Controller method for creating a shift
-exports.createShift = async (req, res) => {
+const createShift = async (req, res) => {
   try {
-    const emp_id = req.user.id;
 
+    const requiredFields=[
+      'shiftName',
+      'startTime',
+      'endTime'
+    ];
+    
+    const missingFields = requiredFields.filter((field) => !req.body[field]);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({ message: 'Missing required fields', missingFields });
+    }
     const shift = new Shift({
-      company :req.user.company,
-      shiftName: req.body.shiftName,
-      startTime: req.body.startTime,
-      endTime: req.body.endTime
+      ...req.body
     });
 
     await shift.save();
@@ -53,7 +60,7 @@ exports.createShift = async (req, res) => {
 };
 
 // Controller method for updating a shift
-exports.updateShift = async (req, res) => {
+const updateShift = async (req, res) => {
   try {
     await Shift.findByIdAndUpdate(req.params.shiftId, req.body);
   
@@ -64,11 +71,19 @@ exports.updateShift = async (req, res) => {
 };
 
 // Controller method for deleting a shift
-exports.deleteShift = async (req, res) => {
+const deleteShift = async (req, res) => {
   try {
     await Shift.findByIdAndDelete(req.params.shiftId);
     res.json({ message: 'Shift deleted.' });
   } catch (error) {
     res.status(500).json({ message: 'An error occurred.' });
   }
+};
+
+module.exports = {
+  getoneShift,
+  getAllShifts ,
+  createShift,
+  updateShift,
+  deleteShift
 };

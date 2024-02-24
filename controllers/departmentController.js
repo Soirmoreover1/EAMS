@@ -68,12 +68,19 @@ const showDepartment = async (req, res) => {
 
 const createDepartment = async (req, res) => {
   try {
-    const { name, manager } = req.body;
-    const emp_id = req.user.id;
+    const requiredFields = [
+       'name',
+       'manager'
+   ];
+
+
+    const missingFields = requiredFields.filter((field) => !req.body[field]);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({ message: 'Missing required fields', missingFields });
+    }
     const department = new Department({
-      company :req.user.company,
-      name,
-      manager
+      ...req.body
     });
 
     await department.save();

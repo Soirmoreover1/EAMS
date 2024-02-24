@@ -34,16 +34,21 @@ const showPromotion = async (req, res) => {
 
 const createPromotion = async (req, res) => {
   try {
-    const { promotionDate, newDepartment, newPosition, newSalary } = req.body;
-    const emp_id = req.user.id;
+    const requiredFields=[
+       'promotionDate',
+        'newDepartment',
+         'newPosition',
+          'newSalary' 
+        ];
+    
+    const missingFields = requiredFields.filter((field) => !req.body[field]);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({ message: 'Missing required fields', missingFields });
+    }
 
     const promotion = new Promotion({
-      emp_id,
-      company :req.user.company,
-      promotionDate,
-      newDepartment,
-      newPosition,
-      newSalary
+      ...req.body
     });
 
     await promotion.save();

@@ -35,15 +35,21 @@ const showLeave = async (req, res) => {
 
 const createLeave = async (req, res) => {
   try {
-    const { type_of_leave, startTime, endTime, duration } = req.body;
-    const emp_id = req.user.id;
+    const requiredFields= [
+      'type_of_leave',
+     'startTime',
+      'endTime',
+       'duration'
+    ];
+
+    const missingFields = requiredFields.filter((field) => !req.body[field]);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({ message: 'Missing required fields', missingFields });
+    }
 
     const leave = new Leave({
-      company :req.user.company,
-      type_of_leave,
-      startTime,
-      endTime,
-      duration
+      ...req.body
     });
 
     await leave.save();

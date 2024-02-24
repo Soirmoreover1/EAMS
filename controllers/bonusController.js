@@ -34,13 +34,19 @@ const getoneBonus = async (req, res) => {
 
 const createBonus = async (req, res) => {
   try {
-    const { type_of_bonus, bonus_amount, date } = req.body;
-    const emp_id = req.user.id;
+    const requiredFields =  [
+       'type_of_bonus',
+       'bonus_amount',
+        'date' 
+    ];
+
+    const missingFields = requiredFields.filter((field) => !req.body[field]);
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({ message: 'Missing required fields', missingFields });
+    }
     const bonus = new Bonus({
-      company :req.user.company,
-      type_of_bonus,
-      bonus_amount,
-      date
+      ...req.body
     });
 
     await bonus.save();
